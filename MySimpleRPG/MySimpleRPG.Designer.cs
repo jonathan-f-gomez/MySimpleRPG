@@ -37,6 +37,21 @@ namespace MySimpleRPG
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnUseWeapon = new System.Windows.Forms.Button();
+            this.btnUsePotion = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cboWeapons = new System.Windows.Forms.ComboBox();
+            this.cboPotions = new System.Windows.Forms.ComboBox();
+            this.btnNorth = new System.Windows.Forms.Button();
+            this.btnSouth = new System.Windows.Forms.Button();
+            this.btnWest = new System.Windows.Forms.Button();
+            this.btnEast = new System.Windows.Forms.Button();
+            this.rtbLocation = new System.Windows.Forms.RichTextBox();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.dgvInventory = new System.Windows.Forms.DataGridView();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // lblLevel
@@ -111,11 +126,155 @@ namespace MySimpleRPG
             this.label1.TabIndex = 16;
             this.label1.Text = "Hit Points:";
             // 
-            // Form1
+            // btnUseWeapon
+            // 
+            this.btnUseWeapon.Location = new System.Drawing.Point(620, 559);
+            this.btnUseWeapon.Name = "btnUseWeapon";
+            this.btnUseWeapon.Size = new System.Drawing.Size(75, 23);
+            this.btnUseWeapon.TabIndex = 24;
+            this.btnUseWeapon.Text = "Use";
+            this.btnUseWeapon.UseVisualStyleBackColor = true;
+            // 
+            // btnUsePotion
+            // 
+            this.btnUsePotion.Location = new System.Drawing.Point(620, 593);
+            this.btnUsePotion.Name = "btnUsePotion";
+            this.btnUsePotion.Size = new System.Drawing.Size(75, 23);
+            this.btnUsePotion.TabIndex = 25;
+            this.btnUsePotion.Text = "Use";
+            this.btnUsePotion.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(617, 531);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(74, 15);
+            this.label5.TabIndex = 26;
+            this.label5.Text = "Select action";
+            // 
+            // cboWeapons
+            // 
+            this.cboWeapons.FormattingEnabled = true;
+            this.cboWeapons.Location = new System.Drawing.Point(369, 559);
+            this.cboWeapons.Name = "cboWeapons";
+            this.cboWeapons.Size = new System.Drawing.Size(121, 23);
+            this.cboWeapons.TabIndex = 27;
+            // 
+            // cboPotions
+            // 
+            this.cboPotions.FormattingEnabled = true;
+            this.cboPotions.Location = new System.Drawing.Point(369, 593);
+            this.cboPotions.Name = "cboPotions";
+            this.cboPotions.Size = new System.Drawing.Size(121, 23);
+            this.cboPotions.TabIndex = 28;
+            // 
+            // btnNorth
+            // 
+            this.btnNorth.Location = new System.Drawing.Point(493, 433);
+            this.btnNorth.Name = "btnNorth";
+            this.btnNorth.Size = new System.Drawing.Size(75, 23);
+            this.btnNorth.TabIndex = 29;
+            this.btnNorth.Text = "North";
+            this.btnNorth.UseVisualStyleBackColor = true;
+            // 
+            // btnSouth
+            // 
+            this.btnSouth.Location = new System.Drawing.Point(493, 487);
+            this.btnSouth.Name = "btnSouth";
+            this.btnSouth.Size = new System.Drawing.Size(75, 23);
+            this.btnSouth.TabIndex = 30;
+            this.btnSouth.Text = "South";
+            this.btnSouth.UseVisualStyleBackColor = true;
+            // 
+            // btnWest
+            // 
+            this.btnWest.Location = new System.Drawing.Point(412, 457);
+            this.btnWest.Name = "btnWest";
+            this.btnWest.Size = new System.Drawing.Size(75, 23);
+            this.btnWest.TabIndex = 31;
+            this.btnWest.Text = "West";
+            this.btnWest.UseVisualStyleBackColor = true;
+            // 
+            // btnEast
+            // 
+            this.btnEast.Location = new System.Drawing.Point(573, 457);
+            this.btnEast.Name = "btnEast";
+            this.btnEast.Size = new System.Drawing.Size(75, 23);
+            this.btnEast.TabIndex = 32;
+            this.btnEast.Text = "East";
+            this.btnEast.UseVisualStyleBackColor = true;
+            // 
+            // rtbLocation
+            // 
+            this.rtbLocation.Location = new System.Drawing.Point(347, 19);
+            this.rtbLocation.Name = "rtbLocation";
+            this.rtbLocation.ReadOnly = true;
+            this.rtbLocation.Size = new System.Drawing.Size(360, 105);
+            this.rtbLocation.TabIndex = 33;
+            this.rtbLocation.Text = "";
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(347, 130);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
+            this.richTextBox1.Size = new System.Drawing.Size(360, 286);
+            this.richTextBox1.TabIndex = 34;
+            this.richTextBox1.Text = "";
+            // 
+            // dgvInventory
+            // 
+            this.dgvInventory.AllowUserToAddRows = false;
+            this.dgvInventory.AllowUserToDeleteRows = false;
+            this.dgvInventory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInventory.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dgvInventory.Enabled = false;
+            this.dgvInventory.Location = new System.Drawing.Point(16, 130);
+            this.dgvInventory.MultiSelect = false;
+            this.dgvInventory.Name = "dgvInventory";
+            this.dgvInventory.ReadOnly = true;
+            this.dgvInventory.RowHeadersVisible = false;
+            this.dgvInventory.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dgvInventory.RowTemplate.Height = 25;
+            this.dgvInventory.Size = new System.Drawing.Size(312, 309);
+            this.dgvInventory.TabIndex = 35;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dataGridView1.Enabled = false;
+            this.dataGridView1.Location = new System.Drawing.Point(16, 446);
+            this.dataGridView1.MultiSelect = false;
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dataGridView1.RowTemplate.Height = 25;
+            this.dataGridView1.Size = new System.Drawing.Size(312, 189);
+            this.dataGridView1.TabIndex = 36;
+            // 
+            // MySimpleRPG
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(719, 651);
+            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.dgvInventory);
+            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.rtbLocation);
+            this.Controls.Add(this.btnEast);
+            this.Controls.Add(this.btnWest);
+            this.Controls.Add(this.btnSouth);
+            this.Controls.Add(this.btnNorth);
+            this.Controls.Add(this.cboPotions);
+            this.Controls.Add(this.cboWeapons);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.btnUsePotion);
+            this.Controls.Add(this.btnUseWeapon);
             this.Controls.Add(this.lblLevel);
             this.Controls.Add(this.lblExperience);
             this.Controls.Add(this.lblGold);
@@ -124,8 +283,10 @@ namespace MySimpleRPG
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "MySimpleRPG";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,6 +302,19 @@ namespace MySimpleRPG
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnUseWeapon;
+        private System.Windows.Forms.Button btnUsePotion;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox cboWeapons;
+        private System.Windows.Forms.ComboBox cboPotions;
+        private System.Windows.Forms.Button btnNorth;
+        private System.Windows.Forms.Button btnSouth;
+        private System.Windows.Forms.Button btnWest;
+        private System.Windows.Forms.Button btnEast;
+        private System.Windows.Forms.RichTextBox rtbLocation;
+        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.DataGridView dgvInventory;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
 
