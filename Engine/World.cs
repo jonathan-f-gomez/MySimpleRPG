@@ -95,13 +95,13 @@ namespace Engine
             return null;
         }
 
-
-
         private static void PopulateItems()
         {
+            //Weapons in the game
             Items.Add(new Weapon(ITEM_ID_RUSTY_SWORD, "Rusty Sword", "Rusty Swords", 0, 5));
             Items.Add(new Weapon(ITEM_ID_CLUB, "Club", "Clubs", 3, 10));
 
+            //Items in the game
             Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "Rat tails"));
             Items.Add(new Item(ITEM_ID_PIECE_OF_FUR, "Piece of fur", "Pieces of fur"));
             Items.Add(new Item(ITEM_ID_SNAKE_FANG, "Snake fang", "Snake fangs"));
@@ -110,9 +110,9 @@ namespace Engine
             Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "Spider silks"));
             Items.Add(new Item(ITEM_ID_ADVENTURER_PASS, "Adventurer pass", "Adventurer passes"));
 
+            //Healing potion in the game
             Items.Add(new HealingPotion(ITEM_ID_HEALING_POTION, "Healing potion", "Healing potions", 5));
         }
-
 
         private static void PopulateMonsters()
         {
@@ -132,7 +132,6 @@ namespace Engine
             Monsters.Add(snake);
             Monsters.Add(giantSpider);
         }
-
 
         private static void PopulateQuests()
         {
@@ -158,6 +157,7 @@ namespace Engine
             Quests.Add(clearFarmersField);
 
         }
+
         private static void PopulateLocations()
         {
             Location home = new Location(LOCATION_ID_HOME, "Hpme", "This is your home. You really need to clean it sometime.");
