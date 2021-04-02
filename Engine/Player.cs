@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
 
 
@@ -8,16 +8,21 @@ namespace Engine
     {
         public int Gold { get; set; }
         public int ExperiencePoints { get; set; }
-        public int Level { get; set; }
+        public int Level 
+        {
+            get
+            {
+                return ((ExperiencePoints / 100) + 1);
+            }
+        }
         public List<InventoryItem> Inventory { get; set; }
         public List<PlayerQuest> Quests { get; set; }
         public Location CurrentLocation { get; set; }
 
 
-        public Player(int currentHitPoints, int maximumHitPoints,int gold, int experiencePoints, int level) : base(currentHitPoints, maximumHitPoints)
+        public Player(int currentHitPoints, int maximumHitPoints,int gold, int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
-            this.Gold = gold;
-            this.Level = level;
+            this.Gold = gold;            
             this.ExperiencePoints = experiencePoints;
 
             Inventory = new List<InventoryItem>();
@@ -32,31 +37,13 @@ namespace Engine
                 return true;
             }
 
-            // See if the player has the required item in their inventory
-            foreach (InventoryItem ii in Inventory)
-            {
-                if (ii.Details.ID == location.ItemRequiredToEnter.ID)
-                {
-                    // We found the required item, so return "true"
-                    return true;
-                }
-            }
-
-            // We didn't find the required item in their inventory, so return "false"
-            return false;
+            return Inventory.Exists(inventoryItem => inventoryItem.Details.ID == location.ItemRequiredToEnter.ID);
         }
 
         public bool HasThisQuest(Quest quest)
         {
-            foreach (PlayerQuest playerQuest in Quests)
-            {
-                if (playerQuest.Details.ID == quest.ID)
-                {
-                    return true;
-                }
-            }
+            return Quests.Exists(playerQuest => playerQuest.Details.ID == quest.ID);
 
-            return false;
         }
 
         public bool CompletedThisQuest(Quest quest)
@@ -73,28 +60,11 @@ namespace Engine
         }
 
         public bool HasAllQuestCompletionItems(Quest quest)
-        {
-            // See if the player has all the items needed to complete the quest here
-            foreach (QuestCompletionItem questCompletionItem in quest.QuestCompletionItems)
+        {   
+            // Check each item in the player's inventory, to see if they have it, and enough of it
+            foreach (QuestCompletionItem completionItem in quest.QuestCompletionItems)
             {
-                bool foundItemInPlayersInventory = false;
-
-                // Check each item in the player's inventory, to see if they have it, and enough of it
-                foreach (InventoryItem inventoryItem in Inventory)
-                {
-                    if (inventoryItem.Details.ID == questCompletionItem.Details.ID) // The player has the item in their inventory
-                    {
-                        foundItemInPlayersInventory = true;
-
-                        if (inventoryItem.Quantity < questCompletionItem.Quantity) // The player does not have enough of this item to complete the quest
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                // The player does not have any of this quest completion item in their inventory
-                if (!foundItemInPlayersInventory)
+                if (!Inventory.Exists(inventoryItem => inventoryItem.Details.ID == completionItem.Details.ID && inventoryItem.Quantity >= completionItem.Quantity))
                 {
                     return false;
                 }

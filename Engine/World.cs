@@ -85,7 +85,7 @@ namespace Engine
 
         public static Location LocationByID(int id)
         {
-            foreach (Location location in Quests)
+            foreach (Location location in Locations)
             {
                 if (location.ID == id)
                 {
@@ -142,7 +142,7 @@ namespace Engine
                 "Kill the rats in the garden and bring back 3 Rat Tails. You will recieve 1 Healing potion and 10 gold.",20,10);
 
             clearAlchemistGarden.QuestCompletionItems.Add(new QuestCompletionItem(ItemByID(ITEM_ID_RAT_TAIL), 3));
-            clearAlchemistGarden.RewardItem = ItemByID(ITEM_ID_HEALING_POTION));
+            clearAlchemistGarden.RewardItem = ItemByID(ITEM_ID_HEALING_POTION);
 
             Quest clearFarmersField =
                new Quest(
@@ -160,7 +160,7 @@ namespace Engine
 
         private static void PopulateLocations()
         {
-            Location home = new Location(LOCATION_ID_HOME, "Hpme", "This is your home. You really need to clean it sometime.");
+            Location home = new Location(LOCATION_ID_HOME, "Home", "This is your home. You really need to clean it sometime.");
 
             Location townSquare = new Location(LOCATION_ID_TOWN_SQUARE, "Town square", "You see a fountain.");
 

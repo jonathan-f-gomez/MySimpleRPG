@@ -15,12 +15,13 @@ namespace MySimpleRPG
     {
         private Player _player;
         private Monster _currentMonster;
+        private int locationCounter = 0;
 
         public MySimpleRPG()
         {
             InitializeComponent();
 
-            _player = new Player(10, 10, 20, 0, 1);
+            _player = new Player(10, 10, 20, 0);
             MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
             _player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
 
@@ -92,7 +93,7 @@ namespace MySimpleRPG
                 }
 
                 //if nothing is seleected add default items
-                if (lootedItems.Count==0)
+                if (lootedItems.Count == 0)
                 {
                     foreach (LootItem lootItem in _currentMonster.LootTable)
                     {
@@ -118,18 +119,106 @@ namespace MySimpleRPG
                     }
                 }
 
-                //TODO: Refreshes the player information
+                // Refreshes the player information
+                UpdatePlayerStats();
 
+                UpdateInventoryListInUI();
+                UpdateWeaponListInUI();
+                UpdatePotionListInUI();
+
+
+                //This adds a blank line only for appearance
+                rtbMessages.Text += Environment.NewLine;
+                ScrollToBottomOfMessages();
+
+                //moves player to current location
+                MoveTo(_player.CurrentLocation);
 
 
             }
 
+            else
+            {
+                //The Monster is still alive
+                int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);//TODO: IF DAMAGE = MAX Add Message calling it critical hit
 
+                //The Display message 
+                //TODO: Add that Monster missed
+                rtbMessages.Text += $"The {_currentMonster.Name} hit you for {damageToPlayer} damage.{Environment.NewLine}";
+
+                //Player loses health
+                _player.CurrentHitPoints -= damageToPlayer;
+
+                //Update display for hitpoints
+                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+
+                //player death
+                //TODO: Add player losing gold for getting transfered to thier house.
+                if (_player.CurrentHitPoints <=0)
+                {
+                    rtbMessages.Text += $"The {_currentMonster.Name} killed you. {Environment.NewLine}";
+                    locationCounter = 0;
+                    MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+
+                }
+
+
+
+
+            }
         }
 
         private void btnUsePotion_Click(object sender, EventArgs e)
         {
+            //gets the currently selected potion
+            HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
 
+            //adds healing amount to player health
+            //TODO: does this work?
+            _player.CurrentHitPoints += potion.AmountToHeal;
+
+            //Makes sure that the player can't have more then thier allowed hitpoints
+            if (_player.CurrentHitPoints > _player.MaximumHitPoints)
+            {
+                _player.CurrentHitPoints = _player.MaximumHitPoints;
+            }
+
+            //Remove the potion from the players inventory
+            foreach (InventoryItem inventoryItem in _player.Inventory)
+            {
+                if(inventoryItem.Details.ID == potion.ID) inventoryItem.Quantity--; //didnt add a break
+                
+            }
+            //Displays that you drank a potion
+            rtbMessages.Text += $"You drink a {potion.Name}.{Environment.NewLine}";
+
+
+            //The Monster is Gets to attack the player after they heal
+            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);//TODO: IF DAMAGE = MAX Add Message calling it critical hit
+
+            //The Display message 
+            //TODO: Add that Monster missed
+            rtbMessages.Text += $"The {_currentMonster.Name} hit you for {damageToPlayer} damage.";
+
+            //Player loses health
+            _player.CurrentHitPoints -= damageToPlayer;
+
+            //player death
+            //TODO: Add player losing gold for getting transfered to thier house.
+            if (_player.CurrentHitPoints <= 0)
+            {
+                rtbMessages.Text += $"The {_currentMonster.Name} killed you {Environment.NewLine}";
+                locationCounter = 0;
+                MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+            }
+
+            //Update player UI
+            UpdatePlayerStats();
+
+            UpdateInventoryListInUI();
+            UpdatePotionListInUI();
+
+            ScrollToBottomOfMessages();
         }
 
         private void MoveTo(Location newLocation)
@@ -137,7 +226,7 @@ namespace MySimpleRPG
             //Does the location have any required items
             if (!_player.HasRequiredItemToEnterThisLocation(newLocation))
             {
-                rtbMessages.Text += "You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this location." + Environment.NewLine;
+                rtbMessages.Text += $"You must have a {newLocation.ItemRequiredToEnter.Name} to enter this location.{Environment.NewLine}";
                 return;
             }
 
@@ -154,11 +243,28 @@ namespace MySimpleRPG
             rtbLocation.Text = newLocation.Name + Environment.NewLine;
             rtbLocation.Text += newLocation.Description + Environment.NewLine;
 
+            
+
+            if (newLocation.ID == World.LOCATION_ID_HOME && locationCounter == 0)
+            {
+                rtbMessages.Text += $"You woke up in your home feeling rested. {Environment.NewLine}";
+                ScrollToBottomOfMessages();
+                locationCounter++;
+            }
+            else
+            {
+                rtbMessages.Text += $"You head toward {newLocation.Name}. {Environment.NewLine}";
+                ScrollToBottomOfMessages();
+                locationCounter++;
+            }
+            
+
             // Completely heal the player
+            //TODO: Take this out 
             _player.CurrentHitPoints = _player.MaximumHitPoints;
 
             // Update Hit Points in UI
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+                UpdatePlayerStats();
 
             // Does the location have a quest?
             if (newLocation.QuestAvailableHere != null)
@@ -181,7 +287,7 @@ namespace MySimpleRPG
                         {
                             // Display message
                             rtbMessages.Text += Environment.NewLine;
-                            rtbMessages.Text += "You complete the '" + newLocation.QuestAvailableHere.Name + "' quest." + Environment.NewLine;
+                            rtbMessages.Text += "You complete the '" + newLocation.QuestAvailableHere.Name + " quest." + Environment.NewLine;
 
                             // Remove quest items from inventory
                             _player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
@@ -224,6 +330,7 @@ namespace MySimpleRPG
                         }
                     }
                     rtbMessages.Text += Environment.NewLine;
+                    ScrollToBottomOfMessages();
 
                     // Add the quest to the player's quest list
                     _player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere));
@@ -233,7 +340,8 @@ namespace MySimpleRPG
             // Does the location have a monster?
             if (newLocation.MonsterLivingHere != null)
             {
-                rtbMessages.Text += "You see a " + newLocation.MonsterLivingHere.Name + Environment.NewLine;
+                rtbMessages.Text += $"You see a {newLocation.MonsterLivingHere.Name}. {Environment.NewLine}";
+                ScrollToBottomOfMessages();
 
                 // Make a new monster, using the values from the standard monster in the World.Monster list
                 Monster standardMonster = World.MonsterByID(newLocation.MonsterLivingHere.ID);
@@ -272,6 +380,9 @@ namespace MySimpleRPG
 
             // Refresh player's potions combobox
             UpdatePotionListInUI();
+
+            //Updates Players UI
+            UpdatePlayerStats();
         }
 
         private void UpdateInventoryListInUI()
@@ -372,6 +483,25 @@ namespace MySimpleRPG
                 cboPotions.SelectedIndex = 0;
             }
         }
+
+        private void ScrollToBottomOfMessages()
+        {
+            rtbMessages.SelectionStart = rtbMessages.Text.Length;
+            rtbMessages.ScrollToCaret();
+        }
+
+        private void UpdatePlayerStats()
+        {
+            //Refreshes the players information on the screen
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            lblGold.Text = _player.Gold.ToString();
+            lblLevel.Text = _player.Level.ToString();
+            lblExperience.Text = _player.ExperiencePoints.ToString();
+
+
+
+        }
+
     }
 }
 
