@@ -31,6 +31,9 @@ namespace MySimpleRPG
             lblLevel.Text = _player.Level.ToString();
         }
 
+
+        /*MOVEMENTS
+        =====================*/
         private void btnNorth_Click(object sender, EventArgs e)
         {
             MoveTo(_player.CurrentLocation.LocationToTheNorth);
@@ -51,182 +54,13 @@ namespace MySimpleRPG
             MoveTo(_player.CurrentLocation.LocationToTheWest);
         }
 
-        private void btnUseWeapon_Click(object sender, EventArgs e)
-        {
-            //Gets the weapon thats selected in the combobox
-            Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;
-
-            //Determines the amount of damage to do to the Monster
-            int damageToMonster = RandomNumberGenerator.NumberBetween(currentWeapon.MinimumDamage, currentWeapon.MaximumDamage);
-
-            //Applies the damage to the monster
-            _currentMonster.CurrentHitPoints -= damageToMonster;
-
-            //displays the message
-            rtbMessages.Text += $"You hit the {_currentMonster.Name} for {damageToMonster} damage!{Environment.NewLine}";
-
-            //checks to see if the monster is dead
-            if (_currentMonster.CurrentHitPoints <= 0)
-            {
-                //Monster died
-                rtbMessages.Text = $"{Environment.NewLine}You defeated the {_currentMonster.Name}!{Environment.NewLine}";
-
-                //give the Player XP
-                _player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
-                rtbMessages.Text = $"You gained {_currentMonster.RewardExperiencePoints} XP!{Environment.NewLine}";
-
-                //Give player gold
-                _player.Gold += _currentMonster.RewardGold;
-                rtbMessages.Text = $"You found {_currentMonster.RewardGold} gold on the {_currentMonster.Name}.{Environment.NewLine}";
-
-
-                //Get random loot items from the monster
-                List<InventoryItem> lootedItems = new List<InventoryItem>();
-
-                //Pulling up loot table and usin gthe number generator to see if player can get lucky
-                foreach (LootItem lootItem in _currentMonster.LootTable)
-                {
-                    if (RandomNumberGenerator.NumberBetween(1, 100) <= lootItem.DropPercentage)
-                    {
-                        lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-                    }
-                }
-
-                //if nothing is seleected add default items
-                if (lootedItems.Count == 0)
-                {
-                    foreach (LootItem lootItem in _currentMonster.LootTable)
-                    {
-                        if (lootItem.IsDefaultItem)
-                        {
-                            lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-                        }
-                    }
-                }
-
-                //add looted items to players inventory
-                foreach (InventoryItem inventoryItem in lootedItems)
-                {
-                    _player.AddItemToInventory(inventoryItem.Details);
-
-                    if (inventoryItem.Quantity == 1)
-                    {
-                        rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.Name} from the {_currentMonster.Name}.{Environment.NewLine}";
-                    }
-                    else
-                    {
-                        rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural} from the {_currentMonster.Name}.{Environment.NewLine}";
-                    }
-                }
-
-                // Refreshes the player information
-                UpdatePlayerStats();
-
-                UpdateInventoryListInUI();
-                UpdateWeaponListInUI();
-                UpdatePotionListInUI();
-
-
-                //This adds a blank line only for appearance
-                rtbMessages.Text += Environment.NewLine;
-                ScrollToBottomOfMessages();
-
-                //moves player to current location
-                MoveTo(_player.CurrentLocation);
-
-
-            }
-
-            else
-            {
-                //The Monster is still alive
-                int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);//TODO: IF DAMAGE = MAX Add Message calling it critical hit
-
-                //The Display message 
-                //TODO: Add that Monster missed
-                rtbMessages.Text += $"The {_currentMonster.Name} hit you for {damageToPlayer} damage.{Environment.NewLine}";
-
-                //Player loses health
-                _player.CurrentHitPoints -= damageToPlayer;
-
-                //Update display for hitpoints
-                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-
-                //player death
-                //TODO: Add player losing gold for getting transfered to thier house.
-                if (_player.CurrentHitPoints <=0)
-                {
-                    rtbMessages.Text += $"The {_currentMonster.Name} killed you. {Environment.NewLine}";
-                    locationCounter = 0;
-                    MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
-
-                }
-
-
-
-
-            }
-        }
-
-        private void btnUsePotion_Click(object sender, EventArgs e)
-        {
-            //gets the currently selected potion
-            HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
-
-            //adds healing amount to player health
-            //TODO: does this work?
-            _player.CurrentHitPoints += potion.AmountToHeal;
-
-            //Makes sure that the player can't have more then thier allowed hitpoints
-            if (_player.CurrentHitPoints > _player.MaximumHitPoints)
-            {
-                _player.CurrentHitPoints = _player.MaximumHitPoints;
-            }
-
-            //Remove the potion from the players inventory
-            foreach (InventoryItem inventoryItem in _player.Inventory)
-            {
-                if(inventoryItem.Details.ID == potion.ID) inventoryItem.Quantity--; //didnt add a break
-                
-            }
-            //Displays that you drank a potion
-            rtbMessages.Text += $"You drink a {potion.Name}.{Environment.NewLine}";
-
-
-            //The Monster is Gets to attack the player after they heal
-            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);//TODO: IF DAMAGE = MAX Add Message calling it critical hit
-
-            //The Display message 
-            //TODO: Add that Monster missed
-            rtbMessages.Text += $"The {_currentMonster.Name} hit you for {damageToPlayer} damage.";
-
-            //Player loses health
-            _player.CurrentHitPoints -= damageToPlayer;
-
-            //player death
-            //TODO: Add player losing gold for getting transfered to thier house.
-            if (_player.CurrentHitPoints <= 0)
-            {
-                rtbMessages.Text += $"The {_currentMonster.Name} killed you {Environment.NewLine}";
-                locationCounter = 0;
-                MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
-            }
-
-            //Update player UI
-            UpdatePlayerStats();
-
-            UpdateInventoryListInUI();
-            UpdatePotionListInUI();
-
-            ScrollToBottomOfMessages();
-        }
-
         private void MoveTo(Location newLocation)
         {
             //Does the location have any required items
             if (!_player.HasRequiredItemToEnterThisLocation(newLocation))
             {
-                rtbMessages.Text += $"You must have a {newLocation.ItemRequiredToEnter.Name} to enter this location.{Environment.NewLine}";
+                rtbMessages.Text += $"You must have a {newLocation.ItemRequiredToEnter.Name} to enter this location.\n";
+                ScrollToBottomOfMessages();
                 return;
             }
 
@@ -243,28 +77,33 @@ namespace MySimpleRPG
             rtbLocation.Text = newLocation.Name + Environment.NewLine;
             rtbLocation.Text += newLocation.Description + Environment.NewLine;
 
-            
 
+            if (newLocation.ID == World.LOCATION_ID_HOME && _player.CurrentHitPoints < _player.MaximumHitPoints)
+            {
+                rtbMessages.Text += $"\nYou lay down in your not so comfy bed and close your eyes to get some much needed sleep.\n";
+                locationCounter = 0;
+            }
             if (newLocation.ID == World.LOCATION_ID_HOME && locationCounter == 0)
             {
-                rtbMessages.Text += $"You woke up in your home feeling rested. {Environment.NewLine}";
+                _player.CurrentHitPoints = _player.MaximumHitPoints;
+                rtbMessages.Text += $"You woke up in your home feeling rested.\n";
                 ScrollToBottomOfMessages();
                 locationCounter++;
             }
             else
             {
-                rtbMessages.Text += $"You head toward {newLocation.Name}. {Environment.NewLine}";
+                rtbMessages.Text += $"You head toward {newLocation.Name}.\n";
                 ScrollToBottomOfMessages();
                 locationCounter++;
             }
-            
+
 
             // Completely heal the player
-            //TODO: Take this out 
-            _player.CurrentHitPoints = _player.MaximumHitPoints;
+            //TODO: Take out heal every time you move
+            //_player.CurrentHitPoints = _player.MaximumHitPoints;
 
             // Update Hit Points in UI
-                UpdatePlayerStats();
+            UpdatePlayerStats();
 
             // Does the location have a quest?
             if (newLocation.QuestAvailableHere != null)
@@ -340,7 +179,7 @@ namespace MySimpleRPG
             // Does the location have a monster?
             if (newLocation.MonsterLivingHere != null)
             {
-                rtbMessages.Text += $"You see a {newLocation.MonsterLivingHere.Name}. {Environment.NewLine}";
+                rtbMessages.Text += $"You see a {newLocation.MonsterLivingHere.Name}.\n";
                 ScrollToBottomOfMessages();
 
                 // Make a new monster, using the values from the standard monster in the World.Monster list
@@ -369,20 +208,217 @@ namespace MySimpleRPG
                 btnUsePotion.Visible = false;
             }
 
-            // Refresh player's inventory list
-            UpdateInventoryListInUI();
-
-            // Refresh player's quest list
-            UpdateQuestListInUI();
-
-            // Refresh player's weapons combobox
-            UpdateWeaponListInUI();
-
-            // Refresh player's potions combobox
-            UpdatePotionListInUI();
-
             //Updates Players UI
             UpdatePlayerStats();
+        }
+
+
+        /*PLAYER ACTIONS
+        ===============================*/
+        private void btnUseWeapon_Click(object sender, EventArgs e)
+        {
+            //Gets the weapon thats selected in the combobox
+            Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;
+
+            //Determines the amount of damage to do to the Monster
+            int damageToMonster = RandomNumberGenerator.NumberBetween(currentWeapon.MinimumDamage, currentWeapon.MaximumDamage);
+
+            //Applies the damage to the monster
+            _currentMonster.CurrentHitPoints -= damageToMonster;
+
+            PlayerAttack(currentWeapon, damageToMonster);
+
+            //checks to see if the monster is dead
+            if (_currentMonster.CurrentHitPoints <= 0)
+            {
+                //Monster died
+                MonsterDeath();
+
+                //This adds a blank line only for appearance
+                rtbMessages.Text += Environment.NewLine;
+                ScrollToBottomOfMessages();
+
+                //TODO: Make Monsters not infinetly spawn FIXED.
+                //Fixes issue with monster continuing to spawn.
+                btnUseWeapon.Visible = false;
+                //MoveTo(_player.CurrentLocation);
+
+                // Refreshes the player information
+                UpdatePlayerStats();
+            }
+
+            else
+            {
+                MonsterAttack();
+
+                if (_player.CurrentHitPoints <=0)
+                {
+                    Death();
+
+                }
+            }
+        }
+
+        private void btnUsePotion_Click(object sender, EventArgs e)
+        {
+            //gets the currently selected potion
+            HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
+
+            //adds healing amount to player health
+            _player.CurrentHitPoints += potion.AmountToHeal;
+
+            //Makes sure that the player can't have more then thier allowed hitpoints
+            if (_player.CurrentHitPoints > _player.MaximumHitPoints)
+            {
+                _player.CurrentHitPoints = _player.MaximumHitPoints;
+            }
+
+            //Remove the potion from the players inventory
+            foreach (InventoryItem inventoryItem in _player.Inventory)
+            {
+                if (inventoryItem.Details.ID == potion.ID) inventoryItem.Quantity--; //didnt add a break
+
+            }
+            //Displays that you drank a potion
+            rtbMessages.Text += $"You drink a {potion.Name}.\n";
+
+            //The Monster is Gets to attack the player after they heal
+            MonsterAttack();
+
+            //player death
+            if (_player.CurrentHitPoints <= 0)
+            {
+                Death();
+            }
+
+            //Update player UI
+            UpdatePlayerStats();
+        }
+
+        private void PlayerAttack(Weapon weapon, int damageToMonster)
+        {
+            //displays the message
+            if (damageToMonster == 0)
+            {
+                rtbMessages.Text += $"You miss the {_currentMonster.Name}!\n";
+            }
+            else if(damageToMonster == weapon.MaximumDamage)
+            {
+                rtbMessages.Text += $"You feel your {_currentMonster.Name} strike true and deal {damageToMonster} damage!\n";
+            }
+            else
+            {
+                rtbMessages.Text += $"You hit the {_currentMonster.Name} for {damageToMonster} damage!\n";
+            }            
+            ScrollToBottomOfMessages();
+        }
+
+        private void Death()
+        {
+            int deathTax = RandomNumberGenerator.NumberBetween(1, _player.Gold);
+
+            rtbMessages.Text += $"The {_currentMonster.Name} knocked you out.\n\n" +
+                $"You woke up with {deathTax} gold missing and crawl back to your house thankfull to see another day...\n\n";
+            locationCounter = 0;
+            MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+        }
+
+
+        /*MONSTER ACTIONS
+        ===============================*/
+        private void MonsterAttack()
+        {
+            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);
+
+            if (damageToPlayer == _currentMonster.MaximumDamage)
+            {
+                rtbMessages.Text += $"The {_currentMonster.Name} hit for critical damage dealing {damageToPlayer} damage.\n";
+            }
+            if (damageToPlayer == 0)
+            {
+                rtbMessages.Text += $"The {_currentMonster.Name} lunged at you but thanks to your prowellness you were able to jump out of the way.\n";
+            }
+            else
+            {
+                rtbMessages.Text += $"The {_currentMonster.Name} hit you for {damageToPlayer} damage.\n";
+            }
+
+            //Player loses health
+            _player.CurrentHitPoints -= damageToPlayer;
+
+            //Update display for hitpoints
+            UpdatePlayerStats();
+
+        }
+
+        private void MonsterDeath()
+        {
+            rtbMessages.Text += $"\nYou defeated the {_currentMonster.Name}!\n";
+
+            //give the Player XP
+            _player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
+            rtbMessages.Text += $"You gained {_currentMonster.RewardExperiencePoints} XP!\n";
+
+            //Give player gold
+            _player.Gold += _currentMonster.RewardGold;
+            rtbMessages.Text += $"You found {_currentMonster.RewardGold} gold on the {_currentMonster.Name}.\n";
+
+            //Get random loot items from the monsteBr
+            List<InventoryItem> lootedItems = new List<InventoryItem>();
+
+            //Pulling up loot table and usin gthe number generator to see if player can get lucky
+            foreach (LootItem lootItem in _currentMonster.LootTable)
+            {
+                if (RandomNumberGenerator.NumberBetween(1, 100) <= lootItem.DropPercentage)
+                {
+                    lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+                }
+            }
+
+            //if nothing is seleected add default items
+            if (lootedItems.Count == 0)
+            {
+                foreach (LootItem lootItem in _currentMonster.LootTable)
+                {
+                    if (lootItem.IsDefaultItem)
+                    {
+                        lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+                    }
+                }
+            }
+
+            //add looted items to players inventory
+            foreach (InventoryItem inventoryItem in lootedItems)
+            {
+                _player.AddItemToInventory(inventoryItem.Details);
+
+                if (inventoryItem.Quantity == 1)
+                {
+                    rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.Name} from the {_currentMonster.Name}.\n";
+                }
+                else
+                {
+                    rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural} from the {_currentMonster.Name}.\n";
+                }
+            }
+        }
+
+
+        /*UI UPDATES
+        ===============================*/
+        private void UpdatePlayerStats()
+        {
+            //Refreshes the players information on the screen
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            lblGold.Text = _player.Gold.ToString();
+            lblLevel.Text = _player.Level.ToString();
+            lblExperience.Text = _player.ExperiencePoints.ToString();
+
+            UpdateInventoryListInUI();
+            UpdateQuestListInUI();
+            UpdateWeaponListInUI();
+            UpdatePotionListInUI();
+            ScrollToBottomOfMessages();
         }
 
         private void UpdateInventoryListInUI()
@@ -490,17 +526,7 @@ namespace MySimpleRPG
             rtbMessages.ScrollToCaret();
         }
 
-        private void UpdatePlayerStats()
-        {
-            //Refreshes the players information on the screen
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            lblGold.Text = _player.Gold.ToString();
-            lblLevel.Text = _player.Level.ToString();
-            lblExperience.Text = _player.ExperiencePoints.ToString();
 
-
-
-        }
 
     }
 }
