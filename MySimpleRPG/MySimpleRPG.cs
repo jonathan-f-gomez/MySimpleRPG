@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace MySimpleRPG
 {
@@ -15,20 +16,29 @@ namespace MySimpleRPG
     {
         private Player _player;
         private Monster _currentMonster;
+        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
+
         private int locationCounter = 0;
 
         public MySimpleRPG()
         {
             InitializeComponent();
 
-            _player = new Player(10, 10, 20, 0);
-            MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
-            _player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
+            if (File.Exists(PLAYER_DATA_FILE_NAME))
+            {
+                _player = Player.CreatePlayerFromXmlString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+            }
+            else
+            {
+                _player = Player.CreateDefaultPlayer();
+            }
 
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            lblGold.Text = _player.Gold.ToString();
-            lblExperience.Text = _player.ExperiencePoints.ToString();
-            lblLevel.Text = _player.Level.ToString();
+            lblHitPoints.DataBindings.Add("Text", _player, "CurrentHitPoints");
+            lblGold.DataBindings.Add("Text", _player, "Gold");
+            lblExperience.DataBindings.Add("Text", _player, "ExperiencePoints");
+            lblLevel.DataBindings.Add("Text", _player, "Level");
+
+            MoveTo(_player.CurrentLocation);
         }
 
 
@@ -97,11 +107,6 @@ namespace MySimpleRPG
                 locationCounter++;
             }
 
-
-            // Completely heal the player
-            //TODO: Take out heal every time you move
-            //_player.CurrentHitPoints = _player.MaximumHitPoints;
-
             // Update Hit Points in UI
             UpdatePlayerStats();
 
@@ -138,7 +143,7 @@ namespace MySimpleRPG
                             rtbMessages.Text += newLocation.QuestAvailableHere.RewardItem.Name + Environment.NewLine;
                             rtbMessages.Text += Environment.NewLine;
 
-                            _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
+                            _player.AddExperiencePoints(newLocation.QuestAvailableHere.RewardExperiencePoints);
                             _player.Gold += newLocation.QuestAvailableHere.RewardGold;
 
                             // Add the reward item to the player's inventory
@@ -356,7 +361,7 @@ namespace MySimpleRPG
             rtbMessages.Text += $"\nYou defeated the {_currentMonster.Name}!\n";
 
             //give the Player XP
-            _player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
+            _player.AddExperiencePoints(_currentMonster.RewardExperiencePoints);
             rtbMessages.Text += $"You gained {_currentMonster.RewardExperiencePoints} XP!\n";
 
             //Give player gold
@@ -409,10 +414,10 @@ namespace MySimpleRPG
         private void UpdatePlayerStats()
         {
             //Refreshes the players information on the screen
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            lblGold.Text = _player.Gold.ToString();
-            lblLevel.Text = _player.Level.ToString();
-            lblExperience.Text = _player.ExperiencePoints.ToString();
+            //lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            //lblGold.Text = _player.Gold.ToString();
+            //lblLevel.Text = _player.Level.ToString();
+            //lblExperience.Text = _player.ExperiencePoints.ToString();
 
             UpdateInventoryListInUI();
             UpdateQuestListInUI();
@@ -445,16 +450,19 @@ namespace MySimpleRPG
         {
             dgvQuests.RowHeadersVisible = false;
 
+            //TODO: Add what items needed to complete Quest.
             dgvQuests.ColumnCount = 2;
             dgvQuests.Columns[0].Name = "Name";
             dgvQuests.Columns[0].Width = 197;
-            dgvQuests.Columns[1].Name = "Done?";
+            dgvQuests.Columns[1].Name = "Quest Complete";
+            //dgvQuests.Columns[2].Name = "Items Needed";
 
             dgvQuests.Rows.Clear();
 
             foreach (PlayerQuest playerQuest in _player.Quests)
             {
-                dgvQuests.Rows.Add(new[] { playerQuest.Details.Name, playerQuest.IsCompleted.ToString() });
+                dgvQuests.Rows.Add(new[] { playerQuest.Details.Name, playerQuest.IsCompleted.ToString()});
+                
             }
         }
 
@@ -481,11 +489,20 @@ namespace MySimpleRPG
             }
             else
             {
+                cboWeapons.SelectedIndexChanged -= cboWeapons_SelectedIndexChanged;
                 cboWeapons.DataSource = weapons;
+                cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
                 cboWeapons.DisplayMember = "Name";
                 cboWeapons.ValueMember = "ID";
 
-                cboWeapons.SelectedIndex = 0;
+                if (_player.CurrentWeapon != null)
+                {
+                    cboWeapons.SelectedItem = _player.CurrentWeapon;
+                }
+                else
+                {
+                    cboWeapons.SelectedIndex = 0;
+                }
             }
         }
 
@@ -526,8 +543,15 @@ namespace MySimpleRPG
             rtbMessages.ScrollToCaret();
         }
 
+        private void MySimpleRPG_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
+        }
 
-
+        private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _player.CurrentWeapon = (Weapon)cboWeapons.SelectedItem;
+        }
     }
 }
 

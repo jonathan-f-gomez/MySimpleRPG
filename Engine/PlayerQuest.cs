@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace Engine
 {
     public class PlayerQuest
@@ -13,5 +14,6 @@ namespace Engine
             this.Details = details;
             IsCompleted = false;
         }
+
     }
 }

@@ -291,6 +291,7 @@ namespace MySimpleRPG
             this.Controls.Add(this.label1);
             this.Name = "MySimpleRPG";
             this.Text = "The RPG";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MySimpleRPG_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvQuests)).EndInit();
             this.ResumeLayout(false);
